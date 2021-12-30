@@ -16,7 +16,7 @@ class _HomePage extends State<HomePage> {
   int _selectedIndex = 0;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  bool isLoading = false;
+  bool isLoading = true;
   DateTime selectedDate = DateTime.now();
 
   String dropdownValue = 'Pilih Kelas Kursus';
@@ -33,10 +33,11 @@ class _HomePage extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    readData();
+    /*   readData(); */
+    refreshData();
   }
 
-  void readData() async {
+  /*  void readData() async {
     var box = await Hive.openBox('registerBox');
 
     box.values.toList().forEach((element) {
@@ -44,11 +45,13 @@ class _HomePage extends State<HomePage> {
         registerData.add(element);
       });
     });
-  }
+  } */
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      /*  readData(); */
+      /*  refreshData(); */
     });
   }
 
@@ -113,72 +116,78 @@ class _HomePage extends State<HomePage> {
 
     var box = await Hive.openBox('registerBox');
 
-    box.values.toList().forEach((element) {
+    if (box.length <= 0) {
       setState(() {
-        registerData.add(element);
+        isLoading = false;
       });
-    });
+    } else {
+      box.values.toList().forEach((element) {
+        setState(() {
+          registerData.add(element);
+          isLoading = false;
+        });
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
-      Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            child: const Text(
-              "List Peserta Kursus",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      RefreshIndicator(
+        color: Colors.red,
+        onRefresh: refreshData,
+        displacement: 50,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: const Text(
+                "List Peserta Kursus",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          const Center(
-            child: Text("Tarik untuk refresh data"),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          registerData.isEmpty == true
-              ? Container()
-              : Expanded(
-                  child: RefreshIndicator(
-                  color: Colors.red,
-                  onRefresh: refreshData,
-                  child: ListView.builder(
-                      itemCount: registerData.length,
-                      itemBuilder: (context, idx) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                          child: Card(
-                            elevation: 5.0,
-                            child: ListTile(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (ctx) => DetailPendaftaran(
-                                            reg: registerData[idx],
-                                          )),
-                                );
-                              },
-                              leading: const Icon(
-                                Icons.book,
-                                color: Colors.blue,
-                              ),
-                              title: Text(
-                                  "Kelas ${registerData[idx].courseName.toString().toUpperCase()}"),
-                              subtitle: Text(
-                                  "Nama ${registerData[idx].name!} ,Telp & Email : ${registerData[idx].telephone} - ${registerData[idx].email}"),
-                              trailing: const Icon(Icons.arrow_right),
+            const SizedBox(
+              height: 10,
+            ),
+            const Center(
+              child: Text("Tarik untuk refresh data"),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Expanded(
+                child: ListView.builder(
+                    itemCount: registerData.length,
+                    itemBuilder: (context, idx) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                        child: Card(
+                          elevation: 5.0,
+                          child: ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (ctx) => DetailPendaftaran(
+                                          reg: registerData[idx],
+                                        )),
+                              );
+                            },
+                            leading: const Icon(
+                              Icons.book,
+                              color: Colors.blue,
                             ),
+                            title: Text(
+                                "Kelas ${registerData[idx].courseName.toString().toUpperCase()}"),
+                            subtitle: Text(
+                                "Nama ${registerData[idx].name!} ,Telp & Email : ${registerData[idx].telephone} - ${registerData[idx].email}"),
+                            trailing: const Icon(Icons.arrow_right),
                           ),
-                        );
-                      }),
-                )),
-        ],
+                        ),
+                      );
+                    })),
+          ],
+        ),
       ),
       Form(
         key: _formKey,
