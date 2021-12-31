@@ -103,7 +103,7 @@ class _DetailPendaftaran extends State<DetailPendaftaran> {
         initialDate: selectedDate,
         /*  firstDate: DateTime(2015, 8), */
         /* firstDate: DateTime.now().subtract(const Duration(days: 0)), */
-        firstDate: DateTime(2015, 8),
+        firstDate: DateTime(1900, 8),
         lastDate: DateTime(2101));
     if (picked != null) {
       setState(() {
