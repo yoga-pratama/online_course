@@ -74,11 +74,10 @@ class _HomePage extends State<HomePage> {
   void submitForm() async {
     final FormState? form = _formKey.currentState;
 
-    setState(() {
-      isLoading = true;
-    });
-
     if (form!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
       var box = await Hive.openBox('registerBox');
       var register = Registrasi()
         ..name = textName.text
